@@ -70,7 +70,7 @@
   #sizer{flex:none;margin:auto}
   #book{position:relative;touch-action:pinch-zoom}
   .nav{
-    position:fixed;top:50%;transform:translateY(-50%);z-index:1500;
+    position:fixed;bottom:80px;z-index:1500;
     width:46px;height:46px;border-radius:50%;
     border:1px solid #d9c9a6;background:rgba(255,255,255,.9);
     color:#8a6a2a;font-size:24px;line-height:1;
@@ -80,10 +80,10 @@
     opacity:.35;
   }
   .nav:hover{background:#fff;opacity:1}
-  .nav:active{transform:translateY(-50%) scale(.92)}
+  .nav:active{transform:scale(.92)}
   .nav.disabled{opacity:.2;pointer-events:none}
-  .nav-left{left:10px}
-  .nav-right{right:10px}
+  .nav-left{left:calc(50% - 60px)}
+  .nav-right{right:calc(50% - 60px)}
   .ui{
     position:fixed;left:0;right:0;bottom:12px;z-index:1500;
     display:flex;flex-direction:column;align-items:center;gap:10px;
