@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>La Grotte — Menu</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:linear-gradient(180deg,#ffffff 0%,#f6f1e6 100%);
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
+    overscroll-behavior-x:none;
+  }
+  .intro{
+    position:fixed;inset:0;z-index:5000;
+    background:#ffffff;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    opacity:1;pointer-events:auto;
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  .intro.hide{opacity:0;visibility:hidden;pointer-events:none}
+  .intro-logo{
+    width:min(55vw, 240px);
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+    overflow:hidden;
+    animation:logoFadeIn .8s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  .intro-logo img{width:100%;height:auto;display:block;max-height:80vh;object-fit:contain;position:relative;z-index:1}
+  .intro-logo::after{
+    content:'';position:absolute;top:0;left:-120%;width:60%;height:100%;
+    background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.7) 50%,rgba(255,255,255,0) 70%);
+    z-index:2;
+    animation:shineSweep 1s .7s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  .intro-line{
+    width:0;height:1px;background:linear-gradient(90deg,transparent,#8a6a2a,transparent);
+    margin-top:20px;
+    animation:lineGrow 1s .9s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  @keyframes logoFadeIn{
+    0%{opacity:0;transform:scale(.92)}
+    100%{opacity:1;transform:scale(1)}
+  }
+  @keyframes shineSweep{
+    0%{left:-120%}
+    100%{left:160%}
+  }
+  @keyframes lineGrow{
+    0%{width:0;opacity:0}
+    100%{width:min(35vw,120px);opacity:.6}
+  }
+
+  .viewport{
+    position:fixed;inset:0;
+    display:flex;
+    overflow:auto;
+    padding:14px;
+    -webkit-overflow-scrolling:touch;
+    z-index:1;
+    background:linear-gradient(180deg,#ffffff 0%,#f6f1e6 100%);
+  }
+
+  #sizer{flex:none;margin:auto}
+  #book{position:relative;touch-action:pinch-zoom}
+  .nav{
+    position:fixed;top:50%;transform:translateY(-50%);z-index:1500;
+    width:46px;height:46px;border-radius:50%;
+    border:1px solid #d9c9a6;background:rgba(255,255,255,.9);
+    color:#8a6a2a;font-size:24px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.14);
+    transition:background .2s,transform .2s;
+    opacity:.85;
+  }
+  .nav:hover{background:#fff;opacity:1}
+  .nav:active{transform:translateY(-50%) scale(.92)}
+  .nav.disabled{opacity:.2;pointer-events:none}
+  .nav-left{left:10px}
+  .nav-right{right:10px}
+  .ui{
+    position:fixed;left:0;right:0;bottom:12px;z-index:1500;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    pointer-events:none;
+  }
+  .ui > *{pointer-events:auto}
+  .toolbar{
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.94);
+    border:1px solid #e3d9c4;border-radius:999px;
+    padding:7px 18px;box-shadow:0 10px 26px rgba(0,0,0,.14);
+  }
+  .page-label{font-size:13px;color:#6b5426;min-width:64px;text-align:center;font-weight:600}
+  .credit{
+    display:flex;align-items:center;gap:5px;
+    font-size:11px;color:#8a7550;
+    border-right:1px solid #e3d9c4;padding-right:10px;margin-right:2px;
+  }
+  .credit img{height:20px;width:auto;display:block}
+  .thumbs{
+    display:flex;gap:8px;max-width:96vw;
+    overflow-x:auto;padding:6px 4px;scrollbar-width:none;
+  }
+  .thumbs::-webkit-scrollbar{display:none}
+  .thumb{
+    width:46px;height:46px;flex:none;border-radius:6px;
+    object-fit:cover;cursor:pointer;
+    border:2px solid #e2d8c0;background:#fff;
+    box-shadow:0 3px 8px rgba(0,0,0,.12);
+    transition:border-color .2s,transform .2s;
+  }
+  .thumb:hover{transform:scale(1.08)}
+  .thumb.active{border-color:#b2862f;box-shadow:0 0 0 2px rgba(178,134,47,.45)}
+  .fallback{
+    position:fixed;inset:0;z-index:4000;
+    display:none;align-items:center;justify-content:center;
+    color:#8a6a2a;font-size:16px;text-align:center;padding:20px;
+  }
+  @media (max-width:700px){
+    .viewport{padding:4px}
+    .nav{width:36px;height:36px;font-size:19px;opacity:.8}
+    .nav-left{left:5px}
+    .nav-right{right:5px}
+    .thumb{width:40px;height:40px}
+  }
+</style>
+</head>
+<body>
+  <div class="intro" id="intro">
+    <div class="intro-logo">
+      <img src="MENU RVB/logo la grotte 3d.png" alt="La Grotte">
+    </div>
+    <div class="intro-line"></div>
+  </div>
+  <div class="viewport" id="viewport">
+    <div id="sizer">
+      <div id="book"></div>
+    </div>
+  </div>
+  <button class="nav nav-left" id="prev" aria-label="Page précédente">&#9664;</button>
+  <button class="nav nav-right" id="next" aria-label="Page suivante">&#9654;</button>
+  <div class="ui">
+    <div class="toolbar">
+      <span class="credit">Création par <img src="MENU RVB/sagipub.png" alt="sagipub"></span>
+      <span class="page-label" id="pageLabel">1 / 14</span>
+    </div>
+    <div class="thumbs" id="thumbs"></div>
+  </div>
+  <div class="fallback" id="fallback">Impossible de charger le menu.</div>
+  <script src="lib/page-flip.js"></script>
+  <script>
+(function(){
+  var FOLDER = 'MENU RVB/';
+  var images = [
+    FOLDER + 'menu la grotte 2026_Plan de travail 1.jpg',
+    FOLDER + 'menu la grotte 2026-02.jpg',
+    FOLDER + 'menu la grotte 2026-03.jpg',
+    FOLDER + 'menu la grotte 2026-04.jpg',
+    FOLDER + 'menu la grotte 2026-05.jpg',
+    FOLDER + 'menu la grotte 2026-06.jpg',
+    FOLDER + 'menu la grotte 2026-07.jpg',
+    FOLDER + 'menu la grotte 2026-08.jpg',
+    FOLDER + 'menu la grotte 2026-09.jpg',
+    FOLDER + 'menu la grotte 2026-10.jpg',
+    FOLDER + 'menu la grotte 2026-11.jpg',
+    FOLDER + 'menu la grotte 2026-12.jpg',
+    FOLDER + 'menu la grotte 2026-13.jpg',
+    FOLDER + 'menu la grotte 2026-14.jpg'
+  ];
+  var PAGES = images.length;
+  var book = document.getElementById('book');
+  var sizer = document.getElementById('sizer');
+  var viewport = document.getElementById('viewport');
+  var prevBtn = document.getElementById('prev');
+  var nextBtn = document.getElementById('next');
+  var pageLabel = document.getElementById('pageLabel');
+  var thumbsBox = document.getElementById('thumbs');
+  var fallback = document.getElementById('fallback');
+  var pageFlip = null;
+
+  function sizerWidth(){
+    var availH = window.innerHeight - 130;
+    return Math.max(240, Math.min(window.innerWidth, availH, 850));
+  }
+  function applySize(){
+    sizer.style.width = Math.round(sizerWidth()) + 'px';
+  }
+  function refreshUI(){
+    if (!pageFlip) return;
+    var idx = pageFlip.getCurrentPageIndex();
+    var n = pageFlip.getPageCount();
+    pageLabel.textContent = Math.min(idx + 1, n) + ' / ' + n;
+    for (var t = 0; t < thumbs.length; t++){
+      thumbs[t].classList.toggle('active', t === idx);
+    }
+    prevBtn.classList.toggle('disabled', idx <= 0);
+    nextBtn.classList.toggle('disabled', idx >= n - 1);
+  }
+  function wireSharpness(){
+    try {
+      var ui = pageFlip.getUI();
+      var origResize = ui.resizeCanvas.bind(ui);
+      ui.resizeCanvas = function(){
+        origResize();
+        var canvas = ui.canvas;
+        var w = canvas.width, h = canvas.height;
+        if (!w || !h) return;
+        var ss = Math.min(3, Math.max(1.5, 1250 / Math.max(w, h)));
+        var wantW = Math.round(w * ss), wantH = Math.round(h * ss);
+        if (wantW === w && wantH === h) return;
+        canvas.width = wantW;
+        canvas.height = wantH;
+        var ctx = canvas.getContext('2d');
+        ctx.setTransform(ss, 0, 0, ss, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+      };
+      ui.update();
+    } catch (e) {}
+  }
+  function forcePortrait(){
+    try {
+      var render = pageFlip.getRender();
+      var setting = pageFlip.getSettings();
+      render.calculateBoundsRect = function(){
+        var e = render.getBlockWidth();
+        var s = render.getBlockHeight() / 2;
+        var n = setting.width / setting.height;
+        var h = e;
+        if (h > setting.maxWidth) h = setting.maxWidth;
+        var r = h / n;
+        if (r > render.getBlockHeight()){ r = render.getBlockHeight(); h = r * n; }
+        var i = e / 2;
+        var o = i - h / 2 - h;
+        render.boundsRect = { left: o, top: s - r / 2, width: 2 * h, height: r, pageWidth: h };
+        return 'portrait';
+      };
+      render.update();
+    } catch (e) {}
+  }
+  function fixFlippingPageBackface(){
+    try {
+      var col = pageFlip.getPageCollection();
+      var page = col.pages[0];
+      if (!page) return;
+      var proto = Object.getPrototypeOf(page);
+      var origDraw = proto.draw;
+      if (!origDraw) return;
+      proto.draw = function(d){
+        var isFlipping = (this.render && this.render.flippingPage === this);
+        if (isFlipping && Math.abs(this.state.hardDrawingAngle) < 178){
+          var ctx = this.render.getContext();
+          var pos = this.render.convertToGlobal(this.state.position);
+          var pw = this.render.getRect().pageWidth;
+          var ph = this.render.getRect().height;
+          ctx.save();
+          ctx.translate(pos.x, pos.y);
+          ctx.beginPath();
+          for (var j = 0; j < this.state.area.length; j++){
+            var t = this.state.area[j];
+            if (t !== null){
+              var pt = this.render.convertToGlobal(t);
+              ctx.lineTo(pt.x - pos.x, pt.y - pos.y);
+            }
+          }
+          ctx.rotate(this.state.angle);
+          ctx.clip();
+          ctx.fillStyle = 'white';
+          ctx.fillRect(-pw * 2, -ph, pw * 4, ph * 2);
+          ctx.restore();
+          return;
+        }
+        origDraw.call(this, d);
+      };
+    } catch(e) {}
+  }
+  function wirePinch(){
+    try {
+      var ui = pageFlip.getUI();
+      var app = pageFlip;
+      var lastTouchAt = 0;
+      var lastTouchOnBook = false;
+      var pinchActive = false;
+      function zoomed(){
+        return ((window.visualViewport && window.visualViewport.scale) || 1) > 1.01;
+      }
+      function onBook(t){
+        var n = t.target;
+        while (n){
+          if (n === book) return true;
+          n = n.parentNode;
+        }
+        return false;
+      }
+      function updateTouchMode(){
+        book.style.touchAction = zoomed() ? 'auto' : 'pinch-zoom';
+      }
+      window.addEventListener('touchstart', function(t){
+        lastTouchAt = Date.now();
+        lastTouchOnBook = onBook(t);
+        if (!lastTouchOnBook) return;
+        t.stopPropagation();
+        if (zoomed()) return;
+        if (t.touches.length > 1){
+          pinchActive = true;
+          if (app.isUserTouch) app.userStop(ui.touchPoint ? ui.touchPoint.point : {x:0,y:0}, !app.isUserMove);
+          ui.touchPoint = null;
+          return;
+        }
+        pinchActive = false;
+        if (t.changedTouches.length > 0){
+          var e = t.changedTouches[0];
+          var i = ui.getMousePos(e.clientX, e.clientY);
+          ui.touchPoint = { point: i, time: Date.now() };
+          setTimeout(function(){ if (ui.touchPoint) app.startUserTouch(i); }, ui.swipeTimeout);
+        }
+      }, { capture: true, passive: false });
+      window.addEventListener('touchmove', function(t){
+        if (!lastTouchOnBook) return;
+        t.stopPropagation();
+        if (zoomed()) return;
+        if (t.touches.length > 1){ pinchActive = true; ui.touchPoint = null; return; }
+        if (t.changedTouches.length > 0){
+          var e = t.changedTouches[0];
+          var i = ui.getMousePos(e.clientX, e.clientY);
+          app.userMove(i, true);
+        }
+      }, { capture: true, passive: false });
+      window.addEventListener('touchend', function(t){
+        lastTouchAt = Date.now();
+        if (!lastTouchOnBook) return;
+        if (zoomed()){ t.preventDefault(); t.stopPropagation(); return; }
+        if (t.touches.length > 0){ pinchActive = true; ui.touchPoint = null; t.stopPropagation(); return; }
+        if (pinchActive){
+          pinchActive = false;
+          ui.touchPoint = null;
+          app.userStop(ui.getMousePos(0, 0), true);
+          t.preventDefault();
+          t.stopPropagation();
+          return;
+        }
+        if (t.changedTouches.length > 0){
+          var e = t.changedTouches[0];
+          var i = ui.getMousePos(e.clientX, e.clientY);
+          var flipped = false;
+          if (ui.touchPoint){
+            var dx = i.x - ui.touchPoint.point.x;
+            var dy = Math.abs(i.y - ui.touchPoint.point.y);
+            if (Math.abs(dx) > ui.swipeDistance && dy < 2 * ui.swipeDistance && Date.now() - ui.touchPoint.time < ui.swipeTimeout){
+              if (dx > 0) app.flipPrev(ui.touchPoint.point.y < app.getRender().getRect().height / 2 ? 'top' : 'bottom');
+              else app.flipNext(ui.touchPoint.point.y < app.getRender().getRect().height / 2 ? 'top' : 'bottom');
+              flipped = true;
+            }
+            ui.touchPoint = null;
+          }
+          app.userStop(i, flipped);
+          t.preventDefault();
+        }
+        t.stopPropagation();
+      }, { capture: true, passive: false });
+      window.addEventListener('touchcancel', function(t){
+        if (!lastTouchOnBook) return;
+        ui.touchPoint = null;
+        pinchActive = false;
+        t.stopPropagation();
+      }, { capture: true, passive: false });
+      function suppressCompat(e){
+        if (Date.now() - lastTouchAt < 900 && lastTouchOnBook) e.stopPropagation();
+      }
+      window.addEventListener('mousedown', suppressCompat, true);
+      window.addEventListener('mousemove', suppressCompat, true);
+      window.addEventListener('mouseup', suppressCompat, true);
+      if (window.visualViewport){
+        window.visualViewport.addEventListener('resize', updateTouchMode);
+        window.visualViewport.addEventListener('scroll', updateTouchMode);
+      }
+      updateTouchMode();
+    } catch (e) {}
+  }
+  function build(){
+    if (pageFlip){
+      try { pageFlip.destroy(); } catch (e) {}
+      if (!book.parentNode) sizer.appendChild(book);
+    }
+    pageFlip = new St.PageFlip(book, {
+      width: 350, height: 350, size: 'stretch',
+      minWidth: 150, maxWidth: 1400, minHeight: 100, maxHeight: 900,
+      drawShadow: true, flippingTime: 900, usePortrait: true,
+      startZIndex: 0, autoSize: true, maxShadowOpacity: 0.6,
+      showCover: true, mobileScrollSupport: false, swipeDistance: 30,
+      clickEventForward: true, useMouseEvents: true, showPageCorners: true
+    });
+    pageFlip.loadFromImages(images);
+    pageFlip.on('flip', refreshUI);
+    pageFlip.on('changeState', function(e){
+      if (e.data === 'read' || e.data === 'user_fold') refreshUI();
+    });
+    pageFlip.on('init', refreshUI);
+    forcePortrait();
+    fixFlippingPageBackface();
+    wireSharpness();
+    wirePinch();
+    applySize();
+    pageFlip.update();
+    refreshUI();
+  }
+  if (typeof St === 'undefined' || !St.PageFlip){
+    fallback.style.display = 'flex';
+    return;
+  }
+  var thumbs = [];
+  for (var p = 1; p <= PAGES; p++){
+    (function(p){
+      var t = document.createElement('img');
+      t.className = 'thumb';
+      t.src = images[p - 1];
+      t.alt = 'Page ' + p;
+      t.addEventListener('click', function(){ if (pageFlip) pageFlip.flip(p - 1, 'bottom'); });
+      thumbsBox.appendChild(t);
+      thumbs.push(t);
+    })(p);
+  }
+  prevBtn.addEventListener('click', function(){ if (pageFlip) pageFlip.flipPrev('bottom'); });
+  nextBtn.addEventListener('click', function(){ if (pageFlip) pageFlip.flipNext('bottom'); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); pageFlip && pageFlip.flipNext('bottom'); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); pageFlip && pageFlip.flipPrev('bottom'); }
+  });
+  var resT;
+  window.addEventListener('resize', function(){
+    clearTimeout(resT);
+    resT = setTimeout(function(){
+      applySize(); if (pageFlip) pageFlip.update();
+    }, 200);
+  });
+  var intro = document.getElementById('intro');
+  var introOpened = false;
+  function openMenu(){
+    if (introOpened) return;
+    introOpened = true;
+    intro.classList.add('hide');
+    setTimeout(function(){ intro.style.display = 'none'; }, 500);
+  }
+  var introTimer = setTimeout(openMenu, 2500);
+  intro.addEventListener('click', function(){ clearTimeout(introTimer); openMenu(); });
+  build();
+  console.log('La Grotte menu loaded');
+})();
+</script>
+</body>
+</html>
