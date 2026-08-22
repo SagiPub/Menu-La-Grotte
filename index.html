@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>La Grotte — Menu</title>
+  <title>La Grotte — Menu</title>
+  <link rel="icon" type="image/png" href="MENU RVB/logo la grotte 3d.png">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%}
@@ -15,34 +16,37 @@
   }
   .intro{
     position:fixed;inset:0;z-index:5000;
-    background:#ffffff;
+    background:#f6f1e6;
     display:flex;align-items:center;justify-content:center;flex-direction:column;
     opacity:1;pointer-events:auto;
     transition:opacity .6s ease, visibility .6s ease;
   }
   .intro.hide{opacity:0;visibility:hidden;pointer-events:none}
   .intro-logo{
-    width:min(55vw, 240px);
+    width:min(70vw, 340px);
     display:flex;align-items:center;justify-content:center;
     position:relative;
     overflow:hidden;
-    animation:logoFadeIn .8s cubic-bezier(.4,0,.2,1) forwards;
+    animation:logoReveal 1.8s cubic-bezier(.22,.61,.36,1) forwards;
   }
   .intro-logo img{width:100%;height:auto;display:block;max-height:80vh;object-fit:contain;position:relative;z-index:1}
   .intro-logo::after{
-    content:'';position:absolute;top:0;left:-120%;width:60%;height:100%;
-    background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.7) 50%,rgba(255,255,255,0) 70%);
+    content:'';position:absolute;top:0;left:-120%;width:50%;height:100%;
+    background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);
     z-index:2;
-    animation:shineSweep 1s .7s cubic-bezier(.4,0,.2,1) forwards;
+    animation:shineSweep 1.2s 1s cubic-bezier(.4,0,.2,1) forwards;
   }
   .intro-line{
     width:0;height:1px;background:linear-gradient(90deg,transparent,#8a6a2a,transparent);
-    margin-top:20px;
-    animation:lineGrow 1s .9s cubic-bezier(.4,0,.2,1) forwards;
+    margin-top:22px;
+    animation:lineGrow 1s 1.2s cubic-bezier(.4,0,.2,1) forwards;
   }
-  @keyframes logoFadeIn{
-    0%{opacity:0;transform:scale(.92)}
-    100%{opacity:1;transform:scale(1)}
+  @keyframes logoReveal{
+    0%{opacity:0;transform:scale(.08)}
+    40%{opacity:1;transform:scale(1.06)}
+    60%{transform:scale(.97)}
+    75%{transform:scale(1.02)}
+    100%{transform:scale(1);opacity:1}
   }
   @keyframes shineSweep{
     0%{left:-120%}
@@ -50,7 +54,7 @@
   }
   @keyframes lineGrow{
     0%{width:0;opacity:0}
-    100%{width:min(35vw,120px);opacity:.6}
+    100%{width:min(35vw,120px);opacity:.5}
   }
 
   .viewport{
