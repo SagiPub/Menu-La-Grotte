@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -16,45 +16,56 @@
   }
   .intro{
     position:fixed;inset:0;z-index:5000;
-    background:#f6f1e6;
-    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    background:#000;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
     opacity:1;pointer-events:auto;
-    transition:opacity .6s ease, visibility .6s ease;
+    transition:opacity .7s ease, visibility .7s ease;
+    overflow:hidden;
+  }
+  .intro::before{
+    content:'';position:absolute;inset:0;
+    background:url("MENU RVB/arriere.PNG") center/cover no-repeat;
+    opacity:.6;
+  }
+  .intro::after{
+    content:'';position:absolute;inset:0;
+    background:rgba(0,0,0,.25);
   }
   .intro.hide{opacity:0;visibility:hidden;pointer-events:none}
+  .intro-welcome{
+    position:relative;z-index:10;
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:clamp(18px,4.5vw,34px);
+    letter-spacing:.5em;text-indent:.5em;
+    color:#f2e2c2;text-transform:uppercase;
+    text-shadow:0 2px 12px rgba(0,0,0,.55),0 0 26px rgba(255,219,138,.35);
+    margin-bottom:14px;
+    opacity:0;
+    animation:welcomeIn 1.4s .9s ease forwards;
+  }
+  @keyframes welcomeIn{
+    0%{opacity:0;transform:translateY(-12px);letter-spacing:.9em}
+    100%{opacity:1;transform:translateY(0)}
+  }
   .intro-logo{
-    width:min(70vw, 340px);
-    display:flex;align-items:center;justify-content:center;
-    position:relative;
-    overflow:hidden;
-    animation:logoReveal 1.8s cubic-bezier(.22,.61,.36,1) forwards;
+    width:min(52vw, 320px);
+    position:relative;z-index:10;
+    opacity:0;
+    animation:logoSight 1.5s cubic-bezier(.22,.61,.36,1) forwards;
+    will-change:transform;
   }
-  .intro-logo img{width:100%;height:auto;display:block;max-height:80vh;object-fit:contain;position:relative;z-index:1}
-  .intro-logo::after{
-    content:'';position:absolute;top:0;left:-120%;width:50%;height:100%;
-    background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);
-    z-index:2;
-    animation:shineSweep 1.2s 1s cubic-bezier(.4,0,.2,1) forwards;
+  .intro-logo img{
+    width:100%;height:auto;display:block;
+    filter:drop-shadow(0 0 24px rgba(255,219,138,.5)) drop-shadow(0 12px 26px rgba(0,0,0,.45));
   }
-  .intro-line{
-    width:0;height:1px;background:linear-gradient(90deg,transparent,#8a6a2a,transparent);
-    margin-top:22px;
-    animation:lineGrow 1s 1.2s cubic-bezier(.4,0,.2,1) forwards;
+  @keyframes logoSight{
+    0%{opacity:0;transform:rotateY(-360deg) scale(.5);filter:blur(6px) brightness(1.35)}
+    70%{opacity:1;transform:rotateY(0deg) scale(1.04);filter:blur(0) brightness(1.05)}
+    100%{opacity:1;transform:rotateY(0deg) scale(1);filter:blur(0)}
   }
-  @keyframes logoReveal{
-    0%{opacity:0;transform:scale(.08)}
-    40%{opacity:1;transform:scale(1.06)}
-    60%{transform:scale(.97)}
-    75%{transform:scale(1.02)}
-    100%{transform:scale(1);opacity:1}
-  }
-  @keyframes shineSweep{
-    0%{left:-120%}
-    100%{left:160%}
-  }
-  @keyframes lineGrow{
-    0%{width:0;opacity:0}
-    100%{width:min(35vw,120px);opacity:.5}
+  .vignette{
+    position:absolute;inset:0;z-index:20;pointer-events:none;
+    background:radial-gradient(120% 100% at 50% 42%,transparent 52%,rgba(0,0,0,.62) 100%);
   }
 
   .viewport{
@@ -133,10 +144,11 @@
 </head>
 <body>
   <div class="intro" id="intro">
+    <div class="intro-welcome">Welcome to</div>
     <div class="intro-logo">
       <img src="MENU RVB/logo la grotte 3d.png" alt="La Grotte">
     </div>
-    <div class="intro-line"></div>
+    <div class="vignette"></div>
   </div>
   <div class="viewport" id="viewport">
     <div id="sizer">
@@ -153,6 +165,7 @@
     <div class="thumbs" id="thumbs"></div>
   </div>
   <div class="fallback" id="fallback">Impossible de charger le menu.</div>
+  <audio id="flipSound" preload="auto" src="flip.mp3"></audio>
   <script src="lib/page-flip.js"></script>
   <script>
 (function(){
@@ -396,8 +409,57 @@
       showCover: true, mobileScrollSupport: false, swipeDistance: 30,
       clickEventForward: true, useMouseEvents: true, showPageCorners: true
     });
+    var flipSound = document.getElementById('flipSound');
+    var flipSoundData = null;
+    function loadFlipSound(){
+      if (!window.AudioContext && !window.webkitAudioContext) return;
+      if (!flipSound) flipSound = document.getElementById('flipSound');
+      if (!flipSound) return;
+      var src = flipSound.getAttribute('src');
+      fetch(src).then(function(r){ return r.arrayBuffer(); }).then(function(buf){
+        var AC = window.AudioContext || window.webkitAudioContext;
+        var ctx = new AC();
+        return ctx.decodeAudioData(buf).then(function(audio){
+          var d = audio.getChannelData(0);
+          var start = 0, end = d.length;
+          for (var i = 0; i < d.length; i++){ if (Math.abs(d[i]) > 0.005){ start = i; break; } }
+          for (var i = d.length - 1; i > 0; i--){ if (Math.abs(d[i]) > 0.005){ end = i; break; } }
+          var len = Math.max(1, end - start);
+          var trimmed = ctx.createBuffer(1, len, audio.sampleRate);
+          var cd = trimmed.getChannelData(0);
+          for (var i = 0; i < len; i++) cd[i] = d[start + i];
+          flipSoundData = { ctx: ctx, buffer: trimmed };
+          var wake = function(){
+            if (flipSoundData && flipSoundData.ctx.state === 'suspended') flipSoundData.ctx.resume();
+          };
+          document.addEventListener('pointerdown', wake, { once: true });
+          document.addEventListener('touchstart', wake, { once: true });
+        });
+      }).catch(function(){});
+    }
+    loadFlipSound();
+    function playFlipSound(){
+      if (flipSoundData){
+        try {
+          var src = flipSoundData.ctx.createBufferSource();
+          src.buffer = flipSoundData.buffer;
+          var g = flipSoundData.ctx.createGain();
+          g.gain.value = 0.5;
+          src.connect(g); g.connect(flipSoundData.ctx.destination);
+          src.start(0);
+        } catch (e) {}
+      } else {
+        try {
+          var s = flipSound || document.createElement('audio');
+          s.volume = 0.5;
+          s.currentTime = 0;
+          var p = s.play();
+          if (p && p.catch) p.catch(function(){});
+        } catch (e2) {}
+      }
+    }
     pageFlip.loadFromImages(images);
-    pageFlip.on('flip', refreshUI);
+    pageFlip.on('flip', function(){ playFlipSound(); refreshUI(); });
     pageFlip.on('changeState', function(e){
       if (e.data === 'read' || e.data === 'user_fold') refreshUI();
     });
@@ -447,7 +509,7 @@
     intro.classList.add('hide');
     setTimeout(function(){ intro.style.display = 'none'; }, 500);
   }
-  var introTimer = setTimeout(openMenu, 2500);
+  var introTimer = setTimeout(openMenu, 3000);
   intro.addEventListener('click', function(){ clearTimeout(introTimer); openMenu(); });
   build();
   console.log('La Grotte menu loaded');
