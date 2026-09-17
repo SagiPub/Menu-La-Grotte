@@ -8,14 +8,21 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%}
+  html{-webkit-text-size-adjust:100%}
   body{
     background:linear-gradient(180deg,#f6f1e6 0%,#f6f1e6 100%);
     font-family:Arial,Helvetica,sans-serif;
     overflow:hidden;
     overscroll-behavior-x:none;
+    -webkit-tap-highlight-color:rgba(0,0,0,0);
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    user-select:none;
   }
+  img{ -webkit-user-drag:none; user-drag:none; -webkit-touch-callout:none; }
   .intro{
-    position:fixed;inset:0;z-index:5000;
+    position:fixed;inset:0;
+    top:0;left:0;right:0;bottom:0;z-index:5000;
     background:#000;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     opacity:1;pointer-events:auto;
@@ -70,6 +77,7 @@
 
   .viewport{
     position:fixed;inset:0;
+    top:0;left:0;right:0;bottom:0;
     display:flex;
     overflow:auto;
     padding:14px 0 14px 0;
@@ -131,7 +139,8 @@
   .thumb:hover{transform:scale(1.08)}
   .thumb.active{border-color:#b2862f;box-shadow:0 0 0 2px rgba(178,134,47,.45)}
   .fallback{
-    position:fixed;inset:0;z-index:4000;
+    position:fixed;inset:0;
+    top:0;left:0;right:0;bottom:0;z-index:4000;
     display:none;align-items:center;justify-content:center;
     color:#8a6a2a;font-size:16px;text-align:center;padding:20px;
   }
@@ -148,7 +157,7 @@
   <div class="intro" id="intro">
     <div class="intro-welcome">Welcome to</div>
     <div class="intro-logo">
-      <img src="MENU RVB/logo la grotte 3d.png" alt="La Grotte">
+      <img src="MENU RVB/logo la grotte 3d.png" alt="La Grotte" draggable="false">
     </div>
     <div class="vignette"></div>
   </div>
@@ -161,7 +170,7 @@
   <button class="nav nav-right" id="next" aria-label="Page suivante">&#9654;</button>
   <div class="ui">
     <div class="toolbar">
-      <span class="credit"><span class="credit-text">Création par</span> <a class="credit-logo" href="https://www.instagram.com/sagipub_?stkn=YmZybDhibHAyMjE3" target="_blank" rel="noopener"><img src="MENU RVB/sagipub.png" alt="sagipub"></a></span>
+      <span class="credit"><span class="credit-text">Création par</span> <a class="credit-logo" href="https://www.instagram.com/sagipub_?stkn=YmZybDhibHAyMjE3" target="_blank" rel="noopener"><img src="MENU RVB/sagipub.png" alt="sagipub" draggable="false"></a></span>
       <span class="page-label" id="pageLabel">1 / 14</span>
     </div>
     <div class="thumbs" id="thumbs"></div>
@@ -171,6 +180,9 @@
   <script src="lib/page-flip.js"></script>
   <script>
 (function(){
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  document.addEventListener('dragstart', function(e){ e.preventDefault(); });
+  document.addEventListener('selectstart', function(e){ e.preventDefault(); });
   var FOLDER = 'MENU RVB/';
   var images = [
     FOLDER + 'menu la grotte 2026_Plan de travail 1.jpg',
@@ -421,7 +433,7 @@
       fetch(src).then(function(r){ return r.arrayBuffer(); }).then(function(buf){
         var AC = window.AudioContext || window.webkitAudioContext;
         var ctx = new AC();
-        return ctx.decodeAudioData(buf).then(function(audio){
+        function setup(audio){
           var d = audio.getChannelData(0);
           var start = 0, end = d.length;
           for (var i = 0; i < d.length; i++){ if (Math.abs(d[i]) > 0.005){ start = i; break; } }
@@ -436,7 +448,13 @@
           };
           document.addEventListener('pointerdown', wake, { once: true });
           document.addEventListener('touchstart', wake, { once: true });
-        });
+        }
+        try {
+          var p = ctx.decodeAudioData(buf, setup, function(){});
+          if (p && p.then && typeof p.then === 'function') p.then(setup);
+        } catch (e2) {
+          try { ctx.decodeAudioData(buf, setup, function(){}); } catch (e3) {}
+        }
       }).catch(function(){});
     }
     loadFlipSound();
