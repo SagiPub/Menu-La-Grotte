@@ -113,6 +113,8 @@
     font-size:11px;color:#8a7550;
     border-right:1px solid #e3d9c4;padding-right:10px;margin-right:2px;
   }
+  .credit-logo{display:inline-flex;cursor:pointer;transition:transform .15s}
+  .credit-logo:hover{transform:scale(1.1)}
   .credit img{height:20px;width:auto;display:block}
   .thumbs{
     display:flex;gap:8px;max-width:96vw;
@@ -159,7 +161,7 @@
   <button class="nav nav-right" id="next" aria-label="Page suivante">&#9654;</button>
   <div class="ui">
     <div class="toolbar">
-      <span class="credit">Création par <img src="MENU RVB/sagipub.png" alt="sagipub"></span>
+      <span class="credit"><span class="credit-text">Création par</span> <a class="credit-logo" href="https://www.instagram.com/sagipub_?stkn=YmZybDhibHAyMjE3" target="_blank" rel="noopener"><img src="MENU RVB/sagipub.png" alt="sagipub"></a></span>
       <span class="page-label" id="pageLabel">1 / 14</span>
     </div>
     <div class="thumbs" id="thumbs"></div>
