@@ -80,7 +80,7 @@
     top:0;left:0;right:0;bottom:0;
     display:flex;
     overflow:auto;
-    padding:14px 0 14px 0;
+    padding:14px 0 146px 0;
     -webkit-overflow-scrolling:touch;
     z-index:1;
     background:linear-gradient(180deg,#f6f1e6 0%,#f6f1e6 100%);
@@ -130,7 +130,7 @@
   }
   .thumbs::-webkit-scrollbar{display:none}
   .thumb{
-    width:46px;height:46px;flex:none;border-radius:6px;
+    width:42px;height:56px;flex:none;border-radius:6px;
     object-fit:cover;cursor:pointer;
     border:2px solid #e2d8c0;background:#fff;
     box-shadow:0 3px 8px rgba(0,0,0,.12);
@@ -145,11 +145,11 @@
     color:#8a6a2a;font-size:16px;text-align:center;padding:20px;
   }
   @media (max-width:700px){
-    .viewport{padding:4px}
+    .viewport{padding:4px 4px 114px 4px}
     .nav{width:36px;height:36px;font-size:19px;opacity:.8}
     .nav-left{left:5px}
     .nav-right{right:5px}
-    .thumb{width:40px;height:40px}
+    .thumb{width:36px;height:48px}
   }
 </style>
 </head>
@@ -214,8 +214,12 @@
   var pageFlip = null;
 
   function sizerWidth(){
-    var availH = window.innerHeight - 130;
-    return Math.max(240, Math.min(window.innerWidth, availH, 850));
+    var isMobile = window.innerWidth <= 700;
+    var ratio = 350 / 470;
+    var uiH = isMobile ? 118 : 160;
+    var availH = window.innerHeight - uiH;
+    var availW = window.innerWidth - 8;
+    return Math.max(240, Math.min(availW, availH * ratio, 850));
   }
   function applySize(){
     sizer.style.width = Math.round(sizerWidth()) + 'px';
@@ -418,8 +422,8 @@
       if (!book.parentNode) sizer.appendChild(book);
     }
     pageFlip = new St.PageFlip(book, {
-      width: 350, height: 350, size: 'stretch',
-      minWidth: 150, maxWidth: 1400, minHeight: 100, maxHeight: 900,
+      width: 350, height: 470, size: 'stretch',
+      minWidth: 150, maxWidth: 1400, minHeight: 100, maxHeight: 1200,
       drawShadow: true, flippingTime: 900, usePortrait: true,
       startZIndex: 0, autoSize: true, maxShadowOpacity: 0.6,
       showCover: true, mobileScrollSupport: false, swipeDistance: 30,
